@@ -1,0 +1,168 @@
+<!doctype html>
+<html data-ng-app="Notebox" data-ng-csp="">
+  <head>
+    <meta charset="UTF-8">
+    <title>DashNotes</title>
+    <link rel="stylesheet" href="../css/bootstrap.min.css">
+    <link rel="stylesheet" href="../css/angular-motion.min.css">
+    <link rel="stylesheet" href="../css/main.css">
+  </head>
+  <body ng-controller="AppController" id="DashnoteApp" class="effect" ng-style="{'background': bgcol}">
+    <div class="container-fluid" id="mainContainer">
+      <div class="container-fluid" id="Toolbar">
+        <div class="col-md-5 toolbar-icons">
+          <span ng-click="openApps()" class="glyphicon glyphicon-th icon icon-white"></span>
+          <span id="AddNote" class="glyphicon glyphicon-plus icon icon-white" ng-click="addNote()"></span>
+        </div>
+        <div class="pull-right" >
+            <h3><span class="light">{{ clock | date:'medium'}}</span></h3>
+        </div>
+      </div>
+
+      <div ng-if="!notes" id="noNotes">
+        <div class="row">
+          <h1>You don't have any notes right now, browse around and add some!</h1>
+        </div>
+      </div>
+
+      <div masonry item-selector=".item">
+        <div class="item" ng-repeat="note in notes track by $index">
+          <div class="deleteNote" ng-click="removeNote($index)">
+            <span class="glyphicon glyphicon-remove icon"></span>
+          </div>
+          <div class="note">
+            <div ng-if="note.type == 'text'">
+              <span class="clickable" ng-click="expandText(note)" ng-if="note.text.length >= 250">
+                {{note.text | trimstring}}
+              </span>
+              <span ng-if="note.text.length < 250">{{note.text | trimstring}}</span>
+              <hr>
+              <div class="row">
+                <div class="col-md-1">
+                  <span class="glyphicon glyphicon-asterisk icon"></span>
+                </div>
+                <div class="col-md-10">
+                  <a href={{note.url}}>
+                    <h4>{{note.title}}</h4>
+                    <h5>{{note.url}}</h5>
+                  </a>
+                </div>
+              </div>
+            </div>
+
+            <div ng-if="note.type == 'image'">
+              <img src={{note.image}} />
+              <hr>
+              <div class="row">
+                <div class="col-md-1">
+                  <span class="glyphicon glyphicon-picture icon"></span>
+                </div>
+                <div class="col-md-10">
+                  <a href={{note.url}}>
+                    <h4>{{note.title}}</h4>
+                    <h5>{{note.url}}</h5>
+                  </a>
+                </div>
+              </div>
+            </div>
+
+            <div ng-if="note.type == 'page'">
+              <div class="row">
+                <div class="col-md-1">
+                  <span class="glyphicon glyphicon-link icon"></span>
+                </div>
+                <div class="col-md-10">
+                  <a href={{note.url}}>
+                    <h4>{{note.title}}</h4>
+                    <h5>{{note.url}}</h5>
+                  </a>
+                </div>
+              </div>
+            </div>
+
+            <div ng-if="note.type == 'youtube'">
+              <object data="https://www.youtube.com/v/{{note.video_id}}" type="application/x-shockwave-flash"><param name="src" value="https://www.youtube.com/v/{{note.video_id}}" /></object>
+
+              <hr>
+              <div class="row">
+                <div class="col-md-1">
+                  <span class="glyphicon glyphicon-play icon"></span>
+                </div>
+                <div class="col-md-10">
+                  <a href={{note.url}}>
+                    <h4>{{note.title}}</h4>
+                    <h5>{{note.url}}</h5>
+                  </a>
+                </div>
+              </div>
+            </div>
+
+            <div ng-if="note.type == 'video'">
+              <video controls>
+                <source ng-src="{{trustSrc(note.video)}}" video/mp4>
+                <source src="note.video" type="video/ogg">
+                Your browser does not support the video tag.
+              </video>
+
+              <hr>
+              <div class="row">
+                <div class="col-md-1">
+                  <span class="glyphicon glyphicon-film icon"></span>
+                </div>
+                <div class="col-md-10">
+                  <a href={{note.url}}>
+                    <h4>{{note.title}}</h4>
+                    <h5>{{note.url}}</h5>
+                  </a>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Button to trigger a default modal with a scope as an object {title:'', content:'', etc.} -->
+    
+    <div class="slideout">
+      <div id="slideContent">
+        <div id="closeSlide" ng-click="clear()">
+          <span class="glyphicon glyphicon-remove"></span>
+        </div>
+        <hr>
+        {{modalcontent}}
+
+        <hr>
+
+        <h4>{{title}}</h4>
+        <h5>{{url}}</h5>
+      </div>
+    </div>
+
+    <script type="text/ng-template" id="addNoteContent.html">
+        <div class="modal-header">
+            <h3 class="modal-title">Add a Note</h3>
+        </div>
+        <div class="modal-body">
+            Title: <input type="text" name="fname" class="form-control" ng-model="notetitle" />
+            Note: <textarea rows="4" cols="50" class="form-control" ng-model="notecontent"></textarea>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-primary" ng-click="ok(notetitle, notecontent)">Add Text Note</button>
+            <button class="btn btn-warning" ng-click="cancel()">Cancel</button>
+        </div>
+    </script>
+    
+
+    <script src="../js/jquery-1.11.1.min.js"></script>
+    <script src="../js/angular/angular.min.js"></script>
+    <script src="../js/angular/angular-route.min.js"></script>
+    <script src="../js/masonry.pkgd.min.js"></script>
+    <script src="../js/angular-masonry.min.js"></script>
+    <script src="../js/ui-bootstrap-tpls-0.11.0.min.js"></script>
+
+    <script src="../js/app.js"></script>
+  </body>
+</html>
